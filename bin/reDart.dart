@@ -29,13 +29,9 @@ List<Offer> offersSuspended = [];
 
 var autoSaving = false;
 
-void main() async {
-  await init();
+void main() async => {await run()};
 
-  readLine().listen(commandHandler);
-}
-
-Future<void> init() async {
+Future<void> run() async {
   config = await Utils.parseJson('assets/config.json');
   sites = await Utils.parseJson('assets/sites.json');
   shortcuts = await Utils.parseJson('assets/shortcuts.json');
@@ -54,6 +50,8 @@ Future<void> init() async {
   await fetchOffers();
 
   log(Severity.Warning, 'reDart initialised.');
+
+  readLine().listen(commandHandler);
 }
 
 Future<dynamic> goto(dynamic destination) async {
