@@ -31,6 +31,8 @@ var autoSaving = false;
 
 void main() async {
   await init();
+
+  readLine().listen(commandHandler);
 }
 
 Future<void> init() async {
@@ -46,8 +48,6 @@ Future<void> init() async {
   await initLog(config['debug']);
 
   page.onConsole.listen((msg) => log(Severity.Debug, msg.text));
-
-  readLine().listen(commandHandler);
 
   await logIn();
   await fetchItems();
