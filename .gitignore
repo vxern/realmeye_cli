@@ -3,13 +3,15 @@
 # Files and directories created by pub
 .dart_tool/
 .packages
+.local-chromium
 build/
+
+# Other
+reDart.bat
+assets/config.json
+
 # If you're building an application, you may want to check-in your pubspec.lock
 pubspec.lock
-
-# Directory created by dartdoc
-# If you don't generate documentation locally you can remove this line.
-doc/api/
 
 # Avoid committing generated Javascript files:
 *.dart.js

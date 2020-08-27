@@ -1,0 +1,9 @@
+{
+    "account": {
+        "username": "RealmEye username goes here",
+        "password" : "RealmEye password goes here"
+    },
+    "debug": true,
+    "headless": true
+}
+  

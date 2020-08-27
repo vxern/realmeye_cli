@@ -1,0 +1,6 @@
+{
+  "login": "https://www.realmeye.com/log-in",
+  "main": "https://www.realmeye.com/",
+  "editOffers": "https://www.realmeye.com/edit-offers-by/%username%",
+  "findOffers": "https://www.realmeye.com/offers-to/%action%/%firstItem%/%secondItem%"
+}
