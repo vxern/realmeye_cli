@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:reDart/log.dart';
+import 'package:reDart/structs.dart';
 import 'package:reDart/utils.dart';
 
 import 'package:puppeteer/puppeteer.dart';
@@ -409,21 +410,6 @@ Future<void> dispose() async {
 }
 
 //Future<List<Offer>> parseArgsToListing(List<String> options) async {}
-
-class Item {
-  int id;
-  int quantity;
-
-  Item(this.id, this.quantity);
-}
-
-class Offer {
-  List<Item> sellItems;
-  List<Item> buyItems;
-  int volume;
-
-  Offer(this.sellItems, this.buyItems, this.volume);
-}
 
 Future<void> commandHandler(String line) async {
   if (line.isEmpty) {
