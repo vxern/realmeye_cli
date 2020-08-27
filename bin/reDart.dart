@@ -146,7 +146,7 @@ Future<void> unsuspend(String option) async {
   }
 }
 
-Future<void> addOffer(String command, List<String> options) async {
+Future<void> addOffer(List<String> options) async {
   await goto(sites['editOffers']);
 
   log(Severity.Info, 'Not implemented.');
@@ -169,7 +169,7 @@ Future<void> find(String option) async {
   log(Severity.Info, 'Not implemented.');
 }
 
-Future<void> autoSave({int interval = 3}) async {
+Future<void> autoSave({int interval = 10}) async {
   if (autoSaving) {
     autoSaving = false;
     return;
@@ -177,7 +177,8 @@ Future<void> autoSave({int interval = 3}) async {
 
   await goto(sites['editOffers']);
 
-  if (interval < 3) interval = 3;
+  // Interval must be bigger than 10 seconds so as to not flood RealmEye's server.
+  if (interval < 10) interval = 10;
   autoSaving = true;
   log(Severity.Info, 'Automatic saving activated.');
   Timer.periodic(Duration(seconds: interval), (timer) {
@@ -204,7 +205,7 @@ Future<void> help(String additionalInfo) async {
         '''\r\n<suspend/unsuspend> ≡ Suspend or unsuspend offers
 <save> ≡ Save offers
 <autosave> ≡ Enables/disables autosaving with an interval (default interval: 3s)
-<buy/sell> ≡ Adds an offer
+<add> ≡ Adds an offer
 <remove> ≡ Removes offer
 <list> ≡ Lists offers
 <info> ≡ Displays info about your offers
@@ -229,24 +230,17 @@ i - For more help, use 'help' and write the command you need more info about.'''
     case 'autosave':
       log(
           Severity.Info,
-          '<autosave> [<interval > 3>] ≡ Enable autosaving with an interval.'
-          '\r\n! - Minimum interval is set to 3 seconds to prevent unnecessary flooding.');
+          '<autosave> [<interval > 10>] ≡ Enable autosaving with an interval.'
+          '\r\n! - Minimum interval is set to 10 seconds to prevent unnecessary flooding.');
       break;
-    case 'buy':
+    case 'add':
       log(
           Severity.Info,
-          '<buy> [<item> <quantity = 1> sell <item> <quantity = 1>] ≡ Lists an item that you want to buy'
-          "\r\n! - You must specify the item you're selling too."
-          '\r\n! - You may swap the arguments around as long as the items are specified.'
-          '\r\n! - You may not specify the quantity and it will be set to 1 by default.');
-      break;
-    case 'sell':
-      log(
-          Severity.Info,
-          '<sell> [<item> <quantity = 1> buy <item> <quantity = 1>] ≡ Lists an item that you want to sell'
+          '<add> [<sell/buy> <item> <quantity = 1> <sell/buy> <item> <quantity = 1> <volume = 1>] ≡ Lists an item that you want to sell'
           "\r\n! - You must specify the item you're buying too."
           '\r\n! - You may swap the arguments around as long as the items are specified.'
-          '\r\n! - You may not specify the quantity and it will be set to 1 by default.');
+          '\r\n! - The default quantity is 1. Maximum quantity is 16.'
+          '\r\n! - The default volume is 1. Maximum volume is 256.');
       break;
     case 'remove':
       log(Severity.Info,
@@ -440,9 +434,8 @@ Future<void> commandHandler(String line) async {
       await unsuspend(args[0]);
       break;
 
-    case 'buy':
-    case 'sell':
-      await addOffer(command, args);
+    case 'add':
+      await addOffer(args);
       break;
 
     case 'remove':
