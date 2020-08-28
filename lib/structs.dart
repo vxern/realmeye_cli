@@ -12,11 +12,11 @@ class Item {
 }
 
 class Offer {
-  final List<Item> sellItems;
-  final List<Item> buyItems;
-  final int volume;
+  List<Item> sellItems;
+  List<Item> buyItems;
+  int volume;
 
-  const Offer(this.sellItems, this.buyItems, this.volume);
+  Offer(this.sellItems, this.buyItems, this.volume);
 
   @override
   bool operator ==(Object other) =>
