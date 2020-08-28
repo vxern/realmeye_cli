@@ -16,11 +16,11 @@ class ItemToResolve {
   final String keyword;
   final int quantity;
 
-  const ItemLookup(this.keyword, this.quantity);
+  const ItemToResolve(this.keyword, this.quantity);
 
   @override
   bool operator ==(Object other) =>
-      other is ItemLookup &&
+      other is ItemToResolve &&
       other.keyword == keyword &&
       other.quantity == quantity;
 }
@@ -86,7 +86,10 @@ class Tuple3<T1, T2, T3> {
 
   @override
   bool operator ==(Object other) =>
-      other is Tuple3 && other.item1 == item1 && other.item2 == item2 && other.item3 == item3;
+      other is Tuple3 &&
+      other.item1 == item1 &&
+      other.item2 == item2 &&
+      other.item3 == item3;
 }
 
 enum Instruction { Buy, Sell }
