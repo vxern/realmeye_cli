@@ -11,6 +11,20 @@ class Item {
       other is Item && other.id == id && other.quantity == quantity;
 }
 
+// Identical to 'Item' except here the id hasn't been established.
+class ItemToResolve {
+  final String keyword;
+  final int quantity;
+
+  const ItemLookup(this.keyword, this.quantity);
+
+  @override
+  bool operator ==(Object other) =>
+      other is ItemLookup &&
+      other.keyword == keyword &&
+      other.quantity == quantity;
+}
+
 class Offer {
   final List<Item> sellItems;
   final List<Item> buyItems;
@@ -50,6 +64,29 @@ class ActionFull {
       other is ActionFull &&
       firstAction == other.firstAction &&
       secondAction == other.secondAction;
+}
+
+class Tuple<T1, T2> {
+  final T1 item1;
+  final T2 item2;
+
+  const Tuple(this.item1, this.item2);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Tuple && other.item1 == item1 && other.item2 == item2;
+}
+
+class Tuple3<T1, T2, T3> {
+  final T1 item1;
+  final T2 item2;
+  final T3 item3;
+
+  const Tuple3(this.item1, this.item2, this.item3);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Tuple3 && other.item1 == item1 && other.item2 == item2 && other.item3 == item3;
 }
 
 enum Instruction { Buy, Sell }
