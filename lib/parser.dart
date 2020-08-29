@@ -73,15 +73,13 @@ class Parser {
         return null;
       }
 
-      if (parsingBuy) {
+      if (parsingBuy || parsingSell) {
         switch (buffer) {
           case valueBracketOpen:
             parsingArgs = true;
             buffer = '';
             break;
           case valueBracketClosed:
-            parsingArgs = false;
-            parsingBuy = false;
             buffer = '';
             if (itemCollector.keyword == '') {
               throwError('You must supply an item name.\r\n'
@@ -89,7 +87,11 @@ class Parser {
               return null;
             }
             itemCollector.quantity ??= 1;
-            listingCollector.buyItems.add(itemCollector);
+            parsingBuy == true
+                ? listingCollector.buyItems.add(itemCollector)
+                : listingCollector.sellItems.add(itemCollector);
+            parsingArgs = false;
+            parsingBuy == true ? parsingBuy = false : parsingSell = false;
             itemCollector = ItemToResolve();
             break;
           case valueSplitter:
@@ -100,45 +102,9 @@ class Parser {
               return null;
             }
             itemCollector.quantity ??= 1;
-            listingCollector.buyItems.add(itemCollector);
-            itemCollector = ItemToResolve();
-            break;
-          default:
-            if (buffer != ' ' && !parsingArgs) {
-              buffer += currChar;
-            }
-            break;
-        }
-      }
-
-      if (parsingSell) {
-        switch (buffer) {
-          case valueBracketOpen:
-            parsingArgs = true;
-            buffer = '';
-            break;
-          case valueBracketClosed:
-            parsingArgs = false;
-            parsingSell = false;
-            buffer = '';
-            if (itemCollector.keyword == '') {
-              throwError('You must supply an item name.\r\n'
-                  'Original string: $arguments');
-              return null;
-            }
-            itemCollector.quantity ??= 1;
-            listingCollector.sellItems.add(itemCollector);
-            itemCollector = ItemToResolve();
-            break;
-          case valueSplitter:
-            buffer = '';
-            if (itemCollector.keyword == '') {
-              throwError('You must supply an item name.\r\n'
-                  'Original string: $arguments');
-              return null;
-            }
-            itemCollector.quantity ??= 1;
-            listingCollector.sellItems.add(itemCollector);
+            parsingBuy == true
+                ? listingCollector.buyItems.add(itemCollector)
+                : listingCollector.sellItems.add(itemCollector);
             itemCollector = ItemToResolve();
             break;
           default:
@@ -154,7 +120,6 @@ class Parser {
           case valueSplitter:
           case valueBracketClosed:
             buffer += currChar;
-            // If there is a number in the buffer
             if (Utils.isInteger(buffer)) {
               if (itemCollector.keyword.isEmpty) {
                 throwError(
@@ -197,7 +162,7 @@ class Parser {
           parsingListing = false;
           break;
         default:
-          // If the parser is parsing values, do not collect to buffer here
+          // If the parser is parsing the 'buy' or 'sell' section, do not collect to buffer here
           if (!parsingBuy && !parsingSell) {
             buffer += currChar;
             switch (buffer) {
@@ -216,11 +181,6 @@ class Parser {
           }
           break;
       }
-    }
-
-    for (var i = 0; i < offersToResolve.length; i++) {
-      log(Severity.Info,
-          "From what I've gathered, you are looking to buy ${offersToResolve[i].buyItems[0].keyword} for ${offersToResolve[i].sellItems[0].keyword}");
     }
 
     return offersToResolve;
