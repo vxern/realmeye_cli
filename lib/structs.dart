@@ -53,7 +53,8 @@ class OfferToResolve {
   int volume;
 
   OfferToResolve() {
-    clear();
+    sellItems = <ItemToResolve>[];
+    buyItems = <ItemToResolve>[];
   }
 
   void clear() {
