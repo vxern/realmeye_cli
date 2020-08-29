@@ -12,7 +12,7 @@ class Utils {
     return int.parse(target, radix: 10, onError: (e) => null) != null;
   }
 
-  static bool listEqual(var first, var second) {
+  static bool listEqual(dynamic first, dynamic second) {
     if (!(first is List && second is List) ||
         (first.runtimeType != second.runtimeType) ||
         (first.length != second.length)) return false;
