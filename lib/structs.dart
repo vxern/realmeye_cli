@@ -57,8 +57,8 @@ class OfferToResolve {
   }
 
   void clear() {
-    sellItems = <ItemToResolve>[];
-    buyItems = <ItemToResolve>[];
+    sellItems.clear();
+    buyItems.clear();
   }
 
   @override
