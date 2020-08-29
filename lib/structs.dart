@@ -11,12 +11,19 @@ class Item {
       other is Item && other.id == id && other.quantity == quantity;
 }
 
-// Identical to 'Item' except here the id hasn't been established.
+// Identical to 'Item' except here the id hasn't been established and it can be cleared.
 class ItemToResolve {
-  final String keyword;
-  final int quantity;
+  String keyword;
+  int quantity;
 
-  const ItemToResolve(this.keyword, this.quantity);
+  ItemToResolve() {
+    clear();
+  }
+
+  void clear() {
+    keyword = '';
+    quantity = null;
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -35,6 +42,28 @@ class Offer {
   @override
   bool operator ==(Object other) =>
       other is Offer &&
+      Utils.listEqual(sellItems, other.sellItems) &&
+      Utils.listEqual(buyItems, other.buyItems) &&
+      volume == other.volume;
+}
+
+class OfferToResolve {
+  List<ItemToResolve> sellItems;
+  List<ItemToResolve> buyItems;
+  int volume;
+
+  OfferToResolve() {
+    clear();
+  }
+
+  void clear() {
+    sellItems = <ItemToResolve>[];
+    buyItems = <ItemToResolve>[];
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is OfferToResolve &&
       Utils.listEqual(sellItems, other.sellItems) &&
       Utils.listEqual(buyItems, other.buyItems) &&
       volume == other.volume;
