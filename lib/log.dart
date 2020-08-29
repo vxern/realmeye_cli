@@ -34,3 +34,7 @@ void log(Severity severity, String message) async {
   var time = timeFormat.format(DateTime.now());
   print('<$time> - ${pen(message)}');
 }
+
+void throwError(String message) {
+  log(Severity.Error, message);
+}
