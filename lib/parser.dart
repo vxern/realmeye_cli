@@ -11,6 +11,7 @@ class Parser {
     const valueBracketClosed = ']';
     const valueSplitter = ',';
 
+    final originalString = arguments;
     arguments = arguments + ' ';
     // Preliminary checks
     if (keyBracketOpen.allMatches(arguments).length !=
@@ -18,23 +19,23 @@ class Parser {
         (keyBracketOpen.allMatches(arguments).isEmpty ||
             keyBracketClosed.allMatches(arguments).isEmpty)) {
       throwError("Your listing is missing one of the key brackets '\{\}'.\r\n"
-          'Original string: $arguments');
+          'Original string: $originalString');
       return null;
     } else if (!arguments.contains(RegExp('(buy.*sell|sell.*buy)'))) {
       throwError("Your listing is missing a 'buy' or 'sell' argument.\r\n"
-          'Original string: $arguments');
+          'Original string: $originalString');
       return null;
     } else if ('buy'.allMatches(arguments).length !=
         'sell'.allMatches(arguments).length) {
       throwError("Your listing is missing a 'buy' or 'sell' argument.\r\n"
-          'Original string: $arguments');
+          'Original string: $originalString');
       return null;
     } else if (valueBracketOpen.allMatches(arguments).length !=
             valueBracketClosed.allMatches(arguments).length ||
         (valueBracketOpen.allMatches(arguments).isEmpty ||
             valueBracketClosed.allMatches(arguments).isEmpty)) {
       throwError("Your listing is missing one of the value brackets '\[\]'.\r\n"
-          'Original string: $arguments');
+          'Original string: $originalString');
       return null;
     }
 
@@ -69,7 +70,7 @@ class Parser {
       if (!parsingListing && currChar != keyBracketOpen) {
         throwError(
             'Expected $keyBracketOpen at position $i but found $buffer instead.\r\n'
-            'Original string: $arguments');
+            'Original string: $originalString');
         return null;
       }
 
@@ -83,7 +84,7 @@ class Parser {
             buffer = '';
             if (itemCollector.keyword == '') {
               throwError('You must supply an item name.\r\n'
-                  'Original string: $arguments');
+                  'Original string: $originalString');
               return null;
             }
             itemCollector.quantity ??= 1;
@@ -98,7 +99,7 @@ class Parser {
             buffer = '';
             if (itemCollector.keyword == '') {
               throwError('You must supply an item name.\r\n'
-                  'Original string: $arguments');
+                  'Original string: $originalString');
               return null;
             }
             itemCollector.quantity ??= 1;
@@ -123,8 +124,8 @@ class Parser {
             if (Utils.isInteger(buffer)) {
               if (itemCollector.keyword.isEmpty) {
                 throwError(
-                    'A quantity was supplied but no item name in a buy section.\r\n'
-                    'Original string: $arguments');
+                    'No item names have been provided in one of the buy / sell sections.\r\n'
+                    'Original string: $originalString');
                 return null;
               }
               itemCollector.quantity = int.parse(buffer);
@@ -152,11 +153,30 @@ class Parser {
           if (listingCollector.buyItems.isEmpty ||
               listingCollector.sellItems.isEmpty) {
             throwError(
-                'No item names have been provided in one of the buy / sell sections.\r\n'
-                'Original string: $arguments');
+                "Your listing is missing one of the value brackets '\[\]'.\r\n"
+                'Original string: $originalString');
             return null;
           }
-          listingCollector.volume ??= 1;
+
+          if (Utils.isInteger(buffer)) {
+            var volume = int.parse(buffer);
+            // Makes sure 1 ≤ volume ≤ 256
+            volume > 256
+                ? listingCollector.volume = 256
+                : volume < 1
+                    ? listingCollector.volume = 1
+                    : listingCollector.volume = volume;
+          } else if (buffer.isEmpty) {
+            listingCollector.volume = 1;
+          } else {
+            throwError(
+                "'$buffer' is not a valid volume. Offer ${offersToResolve.length + 1} skipped.\r\n"
+                'Original string: $originalString');
+            buffer = '';
+            parsingListing = false;
+            break;
+          }
+
           offersToResolve.add(listingCollector);
           listingCollector = OfferToResolve();
           parsingListing = false;
