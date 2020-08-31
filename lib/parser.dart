@@ -188,12 +188,14 @@ class Parser {
             switch (buffer) {
               case 'buy:':
               case 'buy':
+                if (nextChar == ':') break;
                 parsingBuy = true;
                 buffer = '';
                 break;
 
               case 'sell:':
               case 'sell':
+                if (nextChar == ':') break;
                 parsingSell = true;
                 buffer = '';
                 break;
@@ -201,6 +203,12 @@ class Parser {
           }
           break;
       }
+    }
+
+    for (var i = 0; i < offersToResolve.length; i++) {
+      throwError(offersToResolve[i].buyItems[i].keyword +
+          offersToResolve[i].sellItems[i].keyword +
+          offersToResolve[i].volume.toString());
     }
 
     return offersToResolve;
