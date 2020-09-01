@@ -149,7 +149,7 @@ Future<void> addOffer(String arguments) async {
   await goto(sites['editOffers']);
 
   // Parses the arguments
-  var listingsToResolve = await Parser.parseListings(arguments);
+  var listingsToResolve = await Parser.parseListings(arguments, true);
   if (listingsToResolve == null) return;
   // Resolves listings ( keyword => item id )
   var listings = await resolveListings(listingsToResolve);
@@ -162,7 +162,21 @@ Future<void> removeOffer(String option) async {
   log(Severity.Info, 'Not implemented.');
 }
 
-Future<void> list(List<String> options) async {}
+Future<void> list(String arguments) async {
+  await goto(sites['editOffers']);
+
+  var options = await Parser.parseListings(arguments, false);
+  var count = 0;
+
+  if (options == null) {
+    for (var i = 0; i < offersActive.length; i++) {
+      logOffer(idToName, i.toString(), offersActive[i]);
+    }
+    for (var i = 0; i < offersSuspended.length; i++) {
+      logOffer(idToName, i.toString(), offersSuspended[i]);
+    }
+  }
+}
 
 Future<void> info() async {
   log(Severity.Info,
@@ -475,7 +489,7 @@ Future<void> commandHandler(String line) async {
       break;
 
     case 'list':
-      await list(args);
+      await list(line.replaceFirst('list ', ''));
       break;
     case 'info':
       await info();
