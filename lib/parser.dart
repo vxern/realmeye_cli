@@ -3,7 +3,12 @@ import 'package:reDart/structs.dart';
 import 'package:reDart/log.dart';
 
 class Parser {
-  static Future<List<OfferToResolve>> parseListings(String arguments) async {
+  static Future<List<OfferToResolve>> parseListings(
+      String arguments, bool forceCompletion) async {
+    if (!forceCompletion && (arguments.isEmpty || arguments == 'list')) {
+      return null;
+    }
+
     // Constants for parsing
     const keyBracketOpen = '{';
     const keyBracketClosed = '}';
@@ -25,8 +30,9 @@ class Parser {
       throwError("Your listing is missing a 'buy' or 'sell' argument.\r\n"
           'Original string: $originalString');
       return null;
-    } else if ('buy'.allMatches(arguments).length !=
-        'sell'.allMatches(arguments).length) {
+    } else if (forceCompletion &&
+        'buy'.allMatches(arguments).length !=
+            'sell'.allMatches(arguments).length) {
       throwError("Your listing is missing a 'buy' or 'sell' argument.\r\n"
           'Original string: $originalString');
       return null;
