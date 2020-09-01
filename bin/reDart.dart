@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:reDart/log.dart';
+import 'package:reDart/parser.dart';
 import 'package:reDart/structs.dart';
 import 'package:reDart/utils.dart';
 
@@ -144,10 +145,15 @@ Future<void> unsuspend(String option) async {
   }
 }
 
-Future<void> addOffer(List<String> options) async {
+Future<void> addOffer(String arguments) async {
   await goto(sites['editOffers']);
 
-  log(Severity.Info, 'Not implemented.');
+  // Parses the arguments
+  var listingsToResolve = await Parser.parseListings(arguments);
+  if (listingsToResolve == null) return;
+  // Resolves listings ( keyword => item id )
+  var listings = await resolveListings(listingsToResolve);
+  if (listings == null) return;
 }
 
 Future<void> removeOffer(String option) async {
@@ -395,13 +401,41 @@ Future<void> fetchOffers() async {
       'Fetched ${offersActive.length + offersSuspended.length} offers: ${offersActive.length} active, ${offersSuspended.length} suspended');
 }
 
+// Doesn't resolve to item ID, resolves to table index
+Future<List<Offer>> resolveListings(List<OfferToResolve> listings) async {
+  var result = <Offer>[];
+
+  var sellItemCollector = <Item>[];
+  var buyItemCollector = <Item>[];
+
+  for (var listing in listings) {
+    for (var item in listing.sellItems) {
+      for (var i = 0; i < tableIndexToName.length; i++) {
+        if (tableIndexToName[i].toLowerCase().contains(item.keyword)) {
+          sellItemCollector.add(Item(nameToId[i], item.quantity));
+          break;
+        }
+      }
+    }
+    for (var item in listing.buyItems) {
+      for (var i = 0; i < nameToId.length; i++) {
+        if (tableIndexToName[i].toLowerCase().contains(item.keyword)) {
+          buyItemCollector.add(Item(nameToId[i], item.quantity));
+          break;
+        }
+      }
+    }
+    result.add(Offer(sellItemCollector, buyItemCollector, listing.volume));
+  }
+
+  return result;
+}
+
 Future<void> dispose() async {
   if (autoSaving) await autoSave(interval: 1);
   await browser.close();
   exit(0);
 }
-
-//Future<List<Offer>> parseArgsToListing(List<String> options) async {}
 
 Future<void> commandHandler(String line) async {
   if (line.isEmpty) {
@@ -433,7 +467,7 @@ Future<void> commandHandler(String line) async {
       break;
 
     case 'add':
-      await addOffer(args);
+      await addOffer(line.replaceFirst('add ', ''));
       break;
 
     case 'remove':
