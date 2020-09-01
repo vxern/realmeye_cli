@@ -1,5 +1,6 @@
 import 'package:ansicolor/ansicolor.dart';
 import 'package:intl/intl.dart';
+import 'package:reDart/structs.dart';
 
 enum Severity { Debug, Info, Warning, Error }
 
@@ -33,6 +34,15 @@ void log(Severity severity, String message) async {
 
   var time = timeFormat.format(DateTime.now());
   print('<$time> - ${pen(message)}');
+}
+
+void logOffer(Map<dynamic, dynamic> idToName, String index, Offer offer) {
+  var sellItems = (offer.sellItems
+      .map((value) => {'${value.quantity}x ${idToName[value.id]}'})).join(', ');
+  var buyItems = (offer.buyItems
+      .map((value) => {'${value.quantity}x ${idToName[value.id]}'})).join(', ');
+  log(Severity.Info,
+      '$index: ${offer.volume}x Selling $sellItems for $buyItems');
 }
 
 void throwError(String message) {
