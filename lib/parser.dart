@@ -204,13 +204,6 @@ class Parser {
           break;
       }
     }
-
-    for (var i = 0; i < offersToResolve.length; i++) {
-      throwError(offersToResolve[i].buyItems[i].keyword +
-          offersToResolve[i].sellItems[i].keyword +
-          offersToResolve[i].volume.toString());
-    }
-
     return offersToResolve;
   }
 }
