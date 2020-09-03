@@ -148,12 +148,14 @@ Future<void> unsuspend(String option) async {
 Future<void> addOffer(String arguments) async {
   await goto(sites['editOffers']);
 
+  Parser.lexString(arguments);
+
   // Parses the arguments
-  var listingsToResolve = await Parser.parseListings(arguments, true);
-  if (listingsToResolve == null) return;
+  //var listingsToResolve = await Parser.parseListings(arguments, true);
+  //if (listingsToResolve == null) return;
   // Resolves listings ( keyword => item id )
-  var listings = await resolveListings(listingsToResolve);
-  if (listings == null) return;
+  //var listings = await resolveListings(listingsToResolve);
+  //if (listings == null) return;
 }
 
 Future<void> removeOffer(String option) async {
@@ -481,7 +483,7 @@ Future<void> commandHandler(String line) async {
       break;
 
     case 'add':
-      await addOffer(line.replaceFirst('add ', ''));
+      await addOffer(line);
       break;
 
     case 'remove':
@@ -489,7 +491,7 @@ Future<void> commandHandler(String line) async {
       break;
 
     case 'list':
-      await list(line.replaceFirst('list ', ''));
+      await list(line);
       break;
     case 'info':
       await info();
