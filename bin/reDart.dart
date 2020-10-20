@@ -81,6 +81,11 @@ Future<void> logIn() async {
 Future<void> suspend(String option) async {
   await goto(sites['editOffers']);
 
+  if (option.isEmpty) {
+    log(Severity.Error, 'You did not provide any arguments.');
+    return;
+  }
+
   if (offersActive.isEmpty) {
     log(Severity.Error, 'There are no active offers.');
     return;
@@ -115,6 +120,11 @@ Future<void> suspend(String option) async {
 Future<void> unsuspend(String option) async {
   await goto(sites['editOffers']);
 
+  if (option.isEmpty) {
+    log(Severity.Error, 'You did not provide any arguments.');
+    return;
+  }
+
   if (offersSuspended.isEmpty) {
     log(Severity.Error, 'There are no suspended offers.');
     return;
@@ -138,6 +148,7 @@ Future<void> unsuspend(String option) async {
     await page.evaluate(selectors['offerUnsuspendAction'],
         args: [offersSection[index]]);
     await fetchOffers();
+    log(Severity.Info, 'Unsuspended offer.');
     return;
   } else {
     log(Severity.Error, 'Invalid arguments.');
@@ -148,14 +159,12 @@ Future<void> unsuspend(String option) async {
 Future<void> addOffer(String arguments) async {
   await goto(sites['editOffers']);
 
-  Parser.lexString(arguments);
-
   // Parses the arguments
-  //var listingsToResolve = await Parser.parseListings(arguments, true);
-  //if (listingsToResolve == null) return;
+  var listingsToResolve = await Parser.parseListings(arguments);
+  if (listingsToResolve == null) return;
   // Resolves listings ( keyword => item id )
-  //var listings = await resolveListings(listingsToResolve);
-  //if (listings == null) return;
+  var listings = await resolveListings(listingsToResolve);
+  if (listings == null) return;
 }
 
 Future<void> removeOffer(String option) async {
@@ -167,16 +176,11 @@ Future<void> removeOffer(String option) async {
 Future<void> list(String arguments) async {
   await goto(sites['editOffers']);
 
-  var options = await Parser.parseListings(arguments, false);
-  var count = 0;
-
-  if (options == null) {
-    for (var i = 0; i < offersActive.length; i++) {
-      logOffer(idToName, i.toString(), offersActive[i]);
-    }
-    for (var i = 0; i < offersSuspended.length; i++) {
-      logOffer(idToName, i.toString(), offersSuspended[i]);
-    }
+  for (var i = 0; i < offersActive.length; i++) {
+    logOffer(idToName, i.toString(), offersActive[i]);
+  }
+  for (var i = 0; i < offersSuspended.length; i++) {
+    logOffer(idToName, i.toString(), offersSuspended[i]);
   }
 }
 

@@ -3,45 +3,8 @@ import 'package:reDart/structs.dart';
 import 'package:reDart/log.dart';
 
 class Parser {
-  // Thanks Nemokosch!
-  static var tokens = <String, dynamic>{
-    'add': 'add',
-    'buy': 'buy',
-    'sell': 'sell',
-    'leftBrace': '{',
-    'rightBrace': '}',
-    'leftBracket': '\\[',
-    'rightBracket': '\\]',
-    'integer': '(?:0|[1-9][0-9]*)',
-    'word': '(^\S*)',
-    'comma': ','
-  };
-
-  static List<String> lexString(String originalString) {
-    var tokensRegex = tokens.map((key, value) {
-      return MapEntry('$key', RegExp('^\\s*$value\\s*'));
-    });
-
-    var result = <String>[];
-    var currentString = originalString;
-    while (currentString.isNotEmpty) {
-      tokensRegex.forEach((key, regex) {
-        final split = currentString.split(regex);
-        if (split.length == 2) {
-          currentString = split[1];
-          result.add(key);
-        }
-      });
-    }
-
-    throwError(result.toString());
-
-    return result;
-  }
-
-  static Future<List<OfferToResolve>> parseListings(
-      String arguments, bool forceCompletion) async {
-    if (!forceCompletion && (arguments.isEmpty || arguments == 'list')) {
+  static Future<List<OfferToResolve>> parseListings(String arguments) async {
+    if (arguments.isEmpty || arguments == 'list') {
       return null;
     }
 
@@ -66,9 +29,8 @@ class Parser {
       throwError("Your listing is missing a 'buy' or 'sell' argument.\r\n"
           'Original string: $originalString');
       return null;
-    } else if (forceCompletion &&
-        'buy'.allMatches(arguments).length !=
-            'sell'.allMatches(arguments).length) {
+    } else if ('buy'.allMatches(arguments).length !=
+        'sell'.allMatches(arguments).length) {
       throwError("Your listing is missing a 'buy' or 'sell' argument.\r\n"
           'Original string: $originalString');
       return null;
