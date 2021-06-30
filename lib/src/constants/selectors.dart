@@ -8,6 +8,7 @@ class Selectors {
       'body > div.container > div:nth-child(3) > div > h4';
   static const activeOffersList = '#g > table:nth-child(2) > tbody > tr';
   static const suspendedOffersList = '#g > table:nth-child(6) > tbody > tr';
+  static const offersSaveButton = '#g > div:nth-child(3) > button';
 
   static const itemList =
       '#item-selector > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > span';

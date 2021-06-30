@@ -31,54 +31,6 @@ List<Offer> offersSuspended = [];
 
 var autoSaving = false;
 
-void main() async => {await run()};
-
-Future<void> run() async {
-  config = await Utils.parseJson('assets/config.json');
-  sites = await Utils.parseJson('assets/sites.json');
-  shortcuts = await Utils.parseJson('assets/shortcuts.json');
-  selectors = await Utils.parseJson('assets/selectors.json');
-
-  browser = await puppeteer.launch(headless: config['headless']);
-  page = await browser.newPage();
-  await page.setViewport(DeviceViewport(width: 1920, height: 13000));
-
-  await initLog(config['debug']);
-
-  page.onConsole.listen((msg) => log(Severity.Debug, msg.text));
-
-  await logIn();
-  await fetchItems();
-  await fetchOffers();
-
-  log(Severity.Warning, 'reDart initialised.');
-
-  readLine().listen(commandHandler);
-}
-
-Future<dynamic> goto(dynamic destination) async {
-  destination = destination
-      .toString()
-      .replaceFirst('%username%', config['account']['username']);
-  if (destination != page.url) {
-    if (page.url != 'about:blank') {
-      await page.waitForNavigation(wait: Until.load);
-    }
-    await page.goto(destination);
-    return;
-  }
-}
-
-Future<void> logIn() async {
-  await goto(sites['login']);
-
-  await page.type(selectors['loginUsernameBox'], config['account']['username']);
-  await page.type(selectors['loginPasswordBox'], config['account']['password']);
-
-  await page.click(selectors['loginSubmit']);
-  log(Severity.Debug, 'Logged in as ' + config['account']['username'] + '.');
-}
-
 Future<void> suspend(String option) async {
   await goto(sites['editOffers']);
 
@@ -192,35 +144,6 @@ Future<void> info() async {
 
 Future<void> find(String option) async {
   log(Severity.Info, 'Not implemented.');
-}
-
-Future<void> autoSave({int interval = 10}) async {
-  if (autoSaving) {
-    autoSaving = false;
-    return;
-  }
-
-  await goto(sites['editOffers']);
-
-  // Interval must be bigger than 10 seconds so as to not flood RealmEye's server.
-  if (interval < 10) interval = 10;
-  autoSaving = true;
-  log(Severity.Info, 'Automatic saving activated.');
-  Timer.periodic(Duration(seconds: interval), (timer) {
-    if (autoSaving) {
-      page.click(selectors['offerSave']);
-    } else {
-      log(Severity.Info, 'Automatic saving deactivated.');
-      timer.cancel();
-    }
-  });
-}
-
-Future<void> save() async {
-  await goto(sites['editOffers']);
-
-  await page.click(selectors['offerSave']);
-  log(Severity.Info, 'Offers saved.');
 }
 
 Future<void> help(String additionalInfo) async {

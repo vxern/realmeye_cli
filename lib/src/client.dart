@@ -22,6 +22,9 @@ class Client {
   final List<Item> itemList = [];
   final List<Offer> offers = [];
 
+  bool isAutosaving = false;
+  final autosaveDelay = const Duration(seconds: 30);
+
   Client({bool quietMode = false}) {
     log.quietMode = quietMode;
   }
@@ -65,11 +68,11 @@ class Client {
     // Input credentials
     await page.type(Selectors.loginUsernameTextField, username);
     await page.type(Selectors.loginPasswordTextField, password);
-    // Log in
-    await page.click(Selectors.loginSubmitButton);
 
     try {
-      await page.waitForNavigation(
+      // Attempt to log in
+      await page.clickAndWaitForNavigation(
+        Selectors.loginSubmitButton,
         timeout: Duration(seconds: 1, milliseconds: 500),
         wait: Until.domContentLoaded,
       );
@@ -164,6 +167,41 @@ class Client {
 
     return result;
   }
+
+  Future saveOffers({bool autosave = false}) async {
+    if (isAutosaving) {
+      log.warning('Attempted to save offers whilst auto-saving is enabled');
+      return;
+    }
+
+    final cachedPage = await summonPage(
+      Utils.parseRoute(Routes.editOffers, parameters: {
+        'username': username,
+      }),
+    );
+    final page = cachedPage.page;
+
+    if (!autosave) {
+      await page.click(Selectors.offersSaveButton);
+      cachedPage.unlock();
+      return;
+    }
+
+    isAutosaving = true;
+
+    log.success('Enabled auto-saving of offers');
+
+    Timer.periodic(autosaveDelay, (timer) {
+      if (!isAutosaving) {
+        timer.cancel();
+        return;
+      }
+
+      page.click(Selectors.offersSaveButton);
+    });
+  }
+
+  void stopAutosave() => this.isAutosaving = false;
 
   /// Fetches an item by its ID
   Item? resolveIdToItem(int itemId) =>
