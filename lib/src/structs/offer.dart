@@ -1,6 +1,6 @@
 import 'package:realmeye_cli/src/structs/item.dart';
 
-/// Data structure for an offer listing
+/// Data structure for an offer
 class Offer {
   /// Items being sold
   final List<ItemListing> sell;
@@ -15,6 +15,17 @@ class Offer {
   final OfferStatus offerStatus;
 
   const Offer(this.sell, this.buy, this.volume, this.offerStatus);
+}
+
+/// Represents an offer listing in a table of offers
+class OfferListing {
+  /// The offer represented by this listing
+  final Offer offer;
+
+  /// Index / position of the offer in table
+  final int position;
+
+  const OfferListing(this.offer, this.position);
 }
 
 /// Listing status of offer

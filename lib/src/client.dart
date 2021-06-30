@@ -20,7 +20,7 @@ class Client {
   late final String username;
 
   final List<Item> itemList = [];
-  final List<Offer> offers = [];
+  final List<OfferListing> offers = [];
 
   bool isAutosaving = false;
   final autosaveDelay = const Duration(seconds: 30);
@@ -126,8 +126,9 @@ class Client {
     final offersActive = await page.$$(Selectors.activeOffersList);
     final offersSuspended = await page.$$(Selectors.suspendedOffersList);
 
-    offers.addAll(await parseOffers(offersActive, OfferStatus.active));
-    offers.addAll(await parseOffers(offersSuspended, OfferStatus.suspended));
+    offers.addAll(await parseOfferListings(offersActive, OfferStatus.active));
+    offers.addAll(
+        await parseOfferListings(offersSuspended, OfferStatus.suspended));
 
     log.debug('Fetched list of offers: ${offers.length} offer listings');
 
@@ -135,14 +136,14 @@ class Client {
   }
 
   /// Parses a list of offer elements and adds them to [offers]
-  Future<List<Offer>> parseOffers(
+  Future<List<OfferListing>> parseOfferListings(
     List<ElementHandle> offers,
     OfferStatus offerStatus,
   ) async {
-    final List<Offer> result = [];
+    final List<OfferListing> result = [];
 
-    for (final offer in offers) {
-      final sellListing = (await offer.evaluate(Actions.fetchSell))
+    for (int i = 0; i < offers.length; i++) {
+      final sellListing = (await offers[i].evaluate(Actions.fetchSell))
           .map<ItemListing>(
             (itemToSell) => ItemListing(
               resolveIdToItem(itemToSell[0])!,
@@ -151,7 +152,7 @@ class Client {
           )
           .toList();
 
-      final buyListing = (await offer.evaluate(Actions.fetchBuy))
+      final buyListing = (await offers[i].evaluate(Actions.fetchBuy))
           .map<ItemListing>(
             (itemToBuy) => ItemListing(
               resolveIdToItem(itemToBuy[0])!,
@@ -160,9 +161,11 @@ class Client {
           )
           .toList();
 
-      final volume = int.parse(await offer.evaluate(Actions.fetchVolume));
+      final volume = int.parse(await offers[i].evaluate(Actions.fetchVolume));
 
-      result.add(Offer(sellListing, buyListing, volume, offerStatus));
+      result.add(
+        OfferListing(Offer(sellListing, buyListing, volume, offerStatus), i),
+      );
     }
 
     return result;
