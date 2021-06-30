@@ -2,6 +2,9 @@
 .dart_tool/
 .packages
 
+# Files and directories created by puppeteer
+.local-chromium
+
 # Omit commiting pubspec.lock for library packages:
 # https://dart.dev/guides/libraries/private-files#pubspeclock
 pubspec.lock
