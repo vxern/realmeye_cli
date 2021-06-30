@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:puppeteer/puppeteer.dart';
+import 'package:realmeye_cli/src/constants/routes.dart';
+import 'package:realmeye_cli/src/constants/selectors.dart';
 import 'package:sprint/sprint.dart';
 
 import 'package:realmeye_cli/src/structs/cache.dart';
@@ -10,6 +12,8 @@ class Client {
 
   late final Browser browser;
   final cachedPages = <CachedPage>[];
+
+  late final String username;
 
   Client({bool quietMode = false}) {
     log.quietMode = quietMode;
@@ -44,5 +48,31 @@ class Client {
     await cachedPage.page.goto(url);
     cachedPages.add(cachedPage);
     return cachedPage;
+  }
+
+  /// Authenticates this client instance using the provided credentials
+  Future login({required String username, required String password}) async {
+    final cachedPage = await summonPage(Routes.login);
+    final page = cachedPage.page;
+
+    // Input credentials
+    await page.type(Selectors.loginUsernameTextField, username);
+    await page.type(Selectors.loginPasswordTextField, password);
+    // Log in
+    await page.click(Selectors.loginSubmitButton);
+
+    try {
+      await page.waitForNavigation(
+        timeout: Duration(seconds: 1, milliseconds: 500),
+        wait: Until.domContentLoaded,
+      );
+      this.username = username;
+      log.success('Logged in successfully');
+    } catch (_) {
+      log.error('Failed to log in using the provided credentials');
+      return;
+    }
+
+    cachedPage.unlock();
   }
 }
